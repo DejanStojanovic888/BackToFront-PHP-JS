@@ -14,6 +14,36 @@ $pdo = new PDO('mysql:host=localhost;dbname=backtofront;', 'root', '', [
     PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
 ]);
 
+if($_SERVER['REQUEST_METHOD'] === 'PUT') {
+    $json = file_get_contents('php://input');
+    $data = json_decode($json);
+    $id = $_GET['id'];
+    $text = $data->patka;
+
+    $statement = $pdo->prepare("UPDATE tasks SET text = ? WHERE id = ?");
+    $statement->execute([$text, $id]);
+
+    $statement = $pdo->prepare("SELECT * FROM tasks");
+    $statement->execute();
+    $tasks = $statement->fetchAll();
+    
+    echo json_encode($tasks);
+    exit;
+}
+
+if($_SERVER['REQUEST_METHOD'] === 'DELETE') {
+    $id = $_GET['id'];
+    $statement = $pdo->prepare("DELETE FROM tasks WHERE id = ?");
+    $statement->execute([$id]);
+
+    $statement = $pdo->prepare("SELECT * FROM tasks");
+    $statement->execute();
+    $tasks = $statement->fetchAll();
+
+    echo json_encode($tasks);
+    exit;
+}
+
 if($_SERVER['REQUEST_METHOD'] === 'POST') {
     // echo json_encode(['message' => 'POST request primljen']); ovako hvatamo bugove kad nam ne radi POST(mora u JSON formatu jer ga tako ocekuje frontend)
     // die(); 
